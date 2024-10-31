@@ -7,19 +7,22 @@ export async function auth(req, res) {
     const { login, password } = req.body;
     const user = await User.findOne({ login });
     if (!user) {
-      return res.status(404).json({ message: "User not found." });
+      return res
+        .status(404)
+        .json({ message: "Такого пользователя не существует" });
     }
 
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
-      return res.status(401).json({ message: "Invalid credentials." });
+      return res.status(401).json({ message: "Неверный пароль" });
     }
 
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
       expiresIn: "2h",
     });
-    res.json({ token });
+    res.cookie("token", token, { sameSite: "Lax" });
+    res.status(200).json({ token });
   } catch (error) {
-    res.status(500).json({ message: "Error logging in." });
+    res.status(500).json({ message: "Критическая ошибка сервера" });
   }
 }
