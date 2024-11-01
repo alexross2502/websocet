@@ -2,39 +2,29 @@ import "../App.css";
 
 export default function Message({ data }) {
   const { avatar, user, text, createdAt, isCurrentUser } = data;
-
   return (
     <div
-      className={`box_container ${
-        isCurrentUser ? "own_message" : "not_own_message"
+      className={`message_box ${
+        isCurrentUser ? "message_right" : "message_left"
       }`}
     >
       <div
-        className={`message_container  ${
-          isCurrentUser ? "own_message_color" : "not_own_message_color"
-        }
-        `}
+        className={`message_content ${
+          isCurrentUser ? "right_color" : "left_color"
+        }`}
       >
-        <div>
+        <div className="avatar_container">
           <img
             src={avatar}
             alt={`${user}'s avatar`}
-            className={`image_container ${
-              isCurrentUser ? "display_none" : null
-            }`}
+            className={`avatar ${isCurrentUser ? "hide_avatar" : ""}`}
           />
         </div>
         <div className="content_container">
-          <div
-            className={`username_container ${
-              isCurrentUser ? "display_none" : null
-            }`}
-          >
-            {user}
-          </div>
-          <div className="text_container">{text}</div>
+          {!isCurrentUser && <div className="username">{user}</div>}
+          <div className="message_text">{text}</div>
         </div>
-        <div className="date_container">{createdAt}</div>
+        <div className="message_date">{createdAt}</div>
       </div>
     </div>
   );
