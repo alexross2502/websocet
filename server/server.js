@@ -13,6 +13,8 @@ import cookieParser from "cookie-parser";
 import path from "path";
 import { fileURLToPath } from "url";
 import { dirname } from "path";
+import jwt from "jsonwebtoken";
+import Users from "./models/Users.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -30,32 +32,34 @@ app.use(cookieParser());
 app.use(express.json());
 app.use("/api", router);
 
-const avatarsDir = path.join(
-  __dirname.replace(/^\/|\/$/g, ""),
-  "uploads",
-  "avatars"
-);
 app.use(
   "/uploads",
   express.static(path.join(__dirname.replace(/^\/|\/$/g, ""), "uploads"))
 );
 
-console.log("Directory name:", __dirname);
-console.log("Avatar directory path:", path.join(__dirname, "uploads"));
-
 const wss = new WebSocketServer({ server });
-wss.on("connection", (ws) => {
-  console.log("Клиент подключен");
+wss.on("connection", async (ws, req) => {
+  const getTokenFromCookies = (cookieString) => {
+    const match = cookieString.match(/(?:^|;\s*)token=([^;]*)/);
+    return match ? decodeURIComponent(match[1]) : null;
+  };
+  const token = getTokenFromCookies(req.headers.cookie);
+  const decoded = jwt.verify(token, process.env.JWT_SECRET);
+  const userLogin = await Users.findById(decoded.id).select("login");
 
+  ws.userLogin = userLogin;
   ws.on("close", () => {
-    console.log("Клиент отключился");
+    //console.log("Клиент отключился");
   });
 });
 
 export const sendMessageToClients = (message) => {
+  console.log("test");
   wss.clients.forEach((client) => {
     if (client.readyState === WebSocket.OPEN) {
-      client.send(JSON.stringify(message));
+      console.log("puf");
+      const isCurrentUser = client.userLogin.login === message.login;
+      client.send(JSON.stringify({ ...message, isCurrentUser }));
     }
   });
 };

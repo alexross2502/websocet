@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from "react";
 import "../App.css";
+import Message from "../components/Message";
 
 export default function MessengerPage() {
   const [messages, setMessages] = useState([]);
   const [inputMessage, setInputMessage] = useState("");
 
   useEffect(() => {
+    console.log("useEffect triggered");
     const fetchMessages = async () => {
       try {
         const response = await fetch("http://localhost:8000/api/messenger", {
@@ -28,6 +30,7 @@ export default function MessengerPage() {
     fetchMessages();
 
     const ws = new WebSocket("ws://localhost:8000");
+    console.log("WebSocket connection created");
 
     ws.onmessage = (event) => {
       const newMessage = JSON.parse(event.data);
@@ -36,7 +39,10 @@ export default function MessengerPage() {
     };
 
     return () => {
-      ws.close();
+      if (ws.readyState === WebSocket.OPEN) {
+        ws.close();
+      }
+      console.log("WebSocket закрыт при размонтировании");
     };
   }, []);
 
@@ -70,15 +76,7 @@ export default function MessengerPage() {
       <h2>Чат</h2>
       <div className="messages-container">
         {messages.map((message) => (
-          <div key={message.id} className="message">
-            <img
-              src={message.avatar}
-              alt={`${message.user}'s avatar`}
-              width={50}
-              height={50}
-            />
-            <strong>{message.user}:</strong> {message.text} {message.createdAt}
-          </div>
+          <Message key={message.id} data={message} />
         ))}
       </div>
       <form onSubmit={handleSendMessage} className="message-input-form">
