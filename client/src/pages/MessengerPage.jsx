@@ -73,25 +73,25 @@ export default function MessengerPage() {
 
   return (
     <div className="messenger-container">
-      <h2>Чат</h2>
       <div className="messages-container">
         {messages.map((message) => (
           <Message key={message.id} data={message} />
         ))}
       </div>
-      <form onSubmit={handleSendMessage} className="message-input-form">
-        <input
-          type="text"
-          placeholder="Введите сообщение..."
-          value={inputMessage}
-          onChange={(e) => setInputMessage(e.target.value)}
-          required
-          className="message-input"
-        />
-        <button type="submit" className="send-button">
-          Отправить
-        </button>
-      </form>
+      <div className="message-input-form_container">
+        <form onSubmit={handleSendMessage} className="message-input-form">
+          <textarea
+            placeholder="Введите сообщение..."
+            value={inputMessage}
+            onChange={(e) => setInputMessage(e.target.value)}
+            required
+            className="message-input"
+          />
+          <button type="submit" className="send-button">
+            Отправить
+          </button>
+        </form>
+      </div>
     </div>
   );
 }
