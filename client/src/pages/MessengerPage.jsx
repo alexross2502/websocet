@@ -1,19 +1,23 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import "../App.css";
 import Message from "../components/Message";
 
 export default function MessengerPage() {
   const [messages, setMessages] = useState([]);
   const [inputMessage, setInputMessage] = useState("");
+  const messagesEndRef = useRef(null);
 
   useEffect(() => {
     console.log("useEffect triggered");
     const fetchMessages = async () => {
       try {
-        const response = await fetch("http://localhost:8000/api/messenger", {
-          method: "GET",
-          credentials: "include",
-        });
+        const response = await fetch(
+          `${process.env.REACT_APP_SERVER_PATH}api/messenger`,
+          {
+            method: "GET",
+            credentials: "include",
+          }
+        );
 
         if (!response.ok) {
           throw new Error("Ошибка при получении сообщений");
@@ -51,14 +55,17 @@ export default function MessengerPage() {
 
     if (inputMessage.trim()) {
       try {
-        const response = await fetch("http://localhost:8000/api/messenger", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          credentials: "include",
-          body: JSON.stringify({ text: inputMessage }),
-        });
+        const response = await fetch(
+          `${process.env.REACT_APP_SERVER_PATH}api/messenger`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            credentials: "include",
+            body: JSON.stringify({ text: inputMessage }),
+          }
+        );
 
         if (!response.ok) {
           throw new Error("Ошибка отправки сообщения");
@@ -71,12 +78,17 @@ export default function MessengerPage() {
     }
   };
 
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
+
   return (
     <div className="messenger-container">
       <div className="messages-container">
         {messages.map((message) => (
           <Message key={message.id} data={message} />
         ))}
+        <div ref={messagesEndRef}></div>
       </div>
       <div className="message-input-form_container">
         <form onSubmit={handleSendMessage} className="message-input-form">

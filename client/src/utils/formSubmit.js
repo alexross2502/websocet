@@ -4,7 +4,9 @@ export default async function formSubmit(
 ) {
   try {
     const response = await fetch(
-      `http://localhost:8000/api/${isRegister ? "login" : "registration"}`,
+      `${process.env.REACT_APP_SERVER_PATH}api/${
+        isRegister ? "login" : "registration"
+      }`,
       {
         method: "POST",
         headers: {

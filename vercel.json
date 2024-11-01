@@ -1,0 +1,15 @@
+{
+  "projects": {
+    "root": ".",
+    "client": "client",
+    "server": "server"
+  },
+  "builds": [
+    { "src": "server/server.js", "use": "@vercel/node" },
+    { "src": "client/package.json", "use": "@vercel/static-build" }
+  ],
+  "routes": [
+    { "src": "/api/(.*)", "dest": "/server/index.js" },
+    { "src": "/(.*)", "dest": "/client/build/$1" }
+  ]
+}
